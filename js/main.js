@@ -51,12 +51,12 @@ var COMMENTS_TEXTS = [
 ];
 
 var COMMENTS_AVATARS = [
-  '../img/avatar-1.svg',
-  '../img/avatar-2.svg',
-  '../img/avatar-3.svg',
-  '../img/avatar-4.svg',
-  '../img/avatar-5.svg',
-  '../img/avatar-6.svg'
+  'img/avatar-1.svg',
+  'img/avatar-2.svg',
+  'img/avatar-3.svg',
+  'img/avatar-4.svg',
+  'img/avatar-5.svg',
+  'img/avatar-6.svg'
 ];
 
 var photosCount = 25;
@@ -132,9 +132,48 @@ var renderPhotos = function (arr) {
   photosContainerElement.appendChild(fragment);
 };
 
+// Показывает фото из массива объектов в полноэкранном режиме
+var openBigPhoto = function (photo) {
+  bigPhotoElement.classList.remove('hidden');
+
+  var bigPhotoImgElement = bigPhotoElement.querySelector('.big-picture__img').querySelector('img');
+  bigPhotoImgElement.src = photo.src;
+  bigPhotoImgElement.alt = photo.description;
+  bigPhotoElement.querySelector('.likes-count').textContent = photo.likes;
+  bigPhotoElement.querySelector('.comments-count').textContent = photo.comments.length;
+
+  var fragment = document.createDocumentFragment();
+  photo.comments.forEach(function (comment) {
+    fragment.appendChild(createCommentElement(comment));
+  });
+  bigPhotoElement.querySelector('.social__comments').appendChild(fragment);
+
+  bigPhotoElement.querySelector('.social__caption').textContent = photo.description;
+
+  commentsCountElement.classList.add('hidden');
+  commentsLoaderElement.classList.add('hidden');
+  bodyElement.classList.add('modal-open');
+};
+
+// Создает DOM-элемент комментария
+var createCommentElement = function (comment) {
+  var element = commentElement.cloneNode(true);
+
+  element.querySelector('.social__picture').src = comment.avatar;
+  element.querySelector('.social__picture').alt = comment.name;
+  element.querySelector('.social__text').textContent = comment.message;
+
+  return element;
+};
+
 var photoTemplate = document.querySelector('#picture').content.querySelector('.picture');
 var photosContainerElement = document.querySelector('.pictures');
+var bigPhotoElement = document.querySelector('.big-picture');
+var commentElement = bigPhotoElement.querySelector('.social__comment');
+var commentsCountElement = bigPhotoElement.querySelector('.social__comment-count');
+var commentsLoaderElement = bigPhotoElement.querySelector('.social__comments-loader');
+var bodyElement = document.querySelector('body');
 
 var photosArr = createPhotosArr(photosCount, PHOTO_DESCRIPTIONS, COMMENTS_AVATARS, COMMENTS_TEXTS, COMMENTS_USERNAMES);
-
 renderPhotos(photosArr);
+openBigPhoto(photosArr[0]);
