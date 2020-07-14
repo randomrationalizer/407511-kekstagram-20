@@ -61,6 +61,15 @@ var COMMENTS_AVATARS = [
 
 var photosCount = 25;
 
+var photoTemplate = document.querySelector('#picture').content.querySelector('.picture');
+var photosContainerElement = document.querySelector('.pictures');
+var bigPhotoElement = document.querySelector('.big-picture');
+var bigPhotoCloseBtnElement = bigPhotoElement.querySelector('.big-picture__cancel');
+var commentElement = bigPhotoElement.querySelector('.social__comment');
+var commentsCountElement = bigPhotoElement.querySelector('.social__comment-count');
+var commentsLoaderElement = bigPhotoElement.querySelector('.social__comments-loader');
+var bodyElement = document.querySelector('body');
+
 // Возвращает случайное число в диапазоне от min до max (включая max)
 var getRandomNumber = function (min, max) {
   var randomNumber = min + Math.floor(Math.random() * (max + 1 - min));
@@ -94,6 +103,7 @@ var createPhotosArr = function (count, descriptions, avatars, messages, names) {
   for (var i = 1; i <= count; i++) {
     var photo = {};
 
+    photo.id = i;
     photo.src = 'photos/' + i + '.jpg';
     photo.description = descriptions[getRandomNumber(0, descriptions.length - 1)];
     photo.likes = getRandomNumber(15, 200);
@@ -114,6 +124,7 @@ var createPhotosArr = function (count, descriptions, avatars, messages, names) {
 var createPhotoElement = function (photoObj) {
   var element = photoTemplate.cloneNode(true);
 
+  element.querySelector('.picture__img').setAttribute('id', photoObj.id + '-user-photo');
   element.querySelector('.picture__img').src = photoObj.src;
   element.querySelector('.picture__likes').textContent = photoObj.likes;
   element.querySelector('.picture__comments').textContent = photoObj.comments.length;
@@ -142,7 +153,7 @@ var showBodyScrollbar = function () {
   bodyElement.classList.remove('modal-open');
 };
 
-// Показывает фото из массива объектов в полноэкранном режиме
+// Показывает окно полноэкранного просмотра фото из массива объектов, добавляет обработчик закрытия окна по esc
 var openBigPhoto = function (photo) {
   bigPhotoElement.classList.remove('hidden');
 
@@ -163,6 +174,22 @@ var openBigPhoto = function (photo) {
   commentsCountElement.classList.add('hidden');
   commentsLoaderElement.classList.add('hidden');
   hideBodyScrollbar();
+  document.addEventListener('keydown', onBigPhotoEscPress);
+};
+
+// Закрывает окно полноэкранного просмотра фото по нажатию ESC
+var onBigPhotoEscPress = function (evt) {
+  if (evt.keyCode === Code.ESC) {
+    evt.preventDefault();
+    closeBigPhoto();
+  }
+};
+
+// Закрывет окно полноэкранного просмотра фото, удаляет обработчик закрытия фото по esc
+var closeBigPhoto = function () {
+  bigPhotoElement.classList.add('hidden');
+  document.removeEventListener('keydown', onBigPhotoEscPress);
+  showBodyScrollbar();
 };
 
 // Создает DOM-элемент комментария
@@ -176,17 +203,45 @@ var createCommentElement = function (comment) {
   return element;
 };
 
-var photoTemplate = document.querySelector('#picture').content.querySelector('.picture');
-var photosContainerElement = document.querySelector('.pictures');
-var bigPhotoElement = document.querySelector('.big-picture');
-var commentElement = bigPhotoElement.querySelector('.social__comment');
-var commentsCountElement = bigPhotoElement.querySelector('.social__comment-count');
-var commentsLoaderElement = bigPhotoElement.querySelector('.social__comments-loader');
-var bodyElement = document.querySelector('body');
+// Находит нужный объект в массиве объектов фотографий пользователей по id миниатюры
+var findPhoto = function (photoId) {
+  var imgObj = photosArr.find(function (elem) {
+    return elem.id === photoId;
+  });
 
+  return imgObj;
+};
+
+// Обработчик события клик по миниатюре изображения случайного пользователя
+var onMiniaturePhotoClick = function (img) {
+  var clickedPhotoId = parseInt(img.id, 10);
+  var photo = findPhoto(clickedPhotoId);
+  openBigPhoto(photo);
+};
+
+// Генерация и отрисовка массива случайных фотографий пользователей
 var photosArr = createPhotosArr(photosCount, PHOTO_DESCRIPTIONS, COMMENTS_AVATARS, COMMENTS_TEXTS, COMMENTS_USERNAMES);
 renderPhotos(photosArr);
-// openBigPhoto(photosArr[0]);
+
+// Добавляет на контейнер с фотографиями пользователей обработчик события клик, открывающий попап с фото в полноэкранном режиме
+photosContainerElement.addEventListener('click', function (evt) {
+  if (evt.target.matches('img[class="picture__img"]')) {
+    onMiniaturePhotoClick(evt.target);
+  }
+});
+
+// Добавляет на контейнер с фотографиями пользователей обработчик события нажатия Enter, открывающий попап с фото в полноэкранном режиме
+photosContainerElement.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === Code.ENTER && evt.target.matches('a[class="picture"]')) {
+    var img = evt.target.querySelector('img');
+    onMiniaturePhotoClick(img);
+  }
+});
+
+// Добавляет на кнопку закрытия окна полноэкранного просмотра фото обработчик события клик, закрывающий окно
+bigPhotoCloseBtnElement.addEventListener('click', function () {
+  closeBigPhoto();
+});
 
 // ---------------- попап окна редактирования изображения ------------------------------------------
 
@@ -205,7 +260,7 @@ var resetImgUploadInput = function () {
   imgUploadElement.value = '';
 };
 
-// Обработчик события закрытия формы по нажатию Esc
+// Обработчик закрытия формы по нажатию Esc
 var onPopupEscPress = function (evt) {
   if (evt.keyCode === Code.ESC && !evt.target.matches('input[name="hashtags"]') && !evt.target.matches('textarea[name="description"]')) {
     evt.preventDefault();
@@ -472,6 +527,7 @@ var HASHTAG_REGEXP = /^#[a-zа-яA-ZА-Я0-9]*$/;
 var HASHTAG_MIN_LENGTH = 2;
 var HASHTAG_MAX_LENGTH = 20;
 var HASHTAG_MAX_COUNT = 5;
+var DESCRIPTION_MAX_LENGTH = 140;
 
 // Проверяет валидность хеш-тега, возвращает текст сообщения об ошибке
 var checkHashtag = function (hastag, hashtagsArr) {
