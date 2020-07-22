@@ -14,6 +14,7 @@ window.scale = (function () {
   var formElement = document.querySelector('.img-upload__form');
   var imgSizeValueElement = formElement.querySelector('.scale__control--value');
   var previewImgElement = formElement.querySelector('.img-upload__preview').querySelector('img');
+  var imgScaleFieldsetElement = formElement.querySelector('.img-upload__scale');
 
 
   // Записывает в поле размера изображения значение масштаба в процентах
@@ -26,30 +27,30 @@ window.scale = (function () {
     previewImgElement.style.transform = 'scale(' + value / 100 + ')';
   };
 
+  // Добавляет на филдсет с контролами масштабирования фото обработчик события клик, который увеличивает масштаб изображения на 25% и записывает значение в поле input
+  imgScaleFieldsetElement.addEventListener('click', function (evt) {
+    if (evt.target.matches('button')) {
+      var step = Scale.STEP;
+
+      if (evt.target.classList.contains('scale__control--smaller')) {
+        step = -Scale.STEP;
+      }
+
+      var size = parseInt(imgSizeValueElement.value, 10);
+      size += step;
+
+      if (size <= Scale.MAX && size >= Scale.MIN) {
+        setImgSizeInputValue(size);
+        setImgScale(size);
+      }
+    }
+  });
+
   return {
 
     // Сбрасывает CSS стиль масштабирования у изображения
     reset: function () {
       previewImgElement.style.transform = '';
-    },
-
-    // Обработчик события клик, который увеличивает масштаб изображения на 25% и записывает значение в поле input
-    onBtnClick: function (evt) {
-      if (evt.target.matches('button')) {
-        var step = Scale.STEP;
-
-        if (evt.target.classList.contains('scale__control--smaller')) {
-          step = -Scale.STEP;
-        }
-
-        var size = parseInt(imgSizeValueElement.value, 10);
-        size += step;
-
-        if (size <= Scale.MAX && size >= Scale.MIN) {
-          setImgSizeInputValue(size);
-          setImgScale(size);
-        }
-      }
     },
 
     // Сбрасывает значение масштаба в поле размера изображения на значение по умолчанию

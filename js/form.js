@@ -14,15 +14,9 @@ window.form = (function () {
   var formElement = document.querySelector('.img-upload__form');
   var imgUploadElement = formElement.querySelector('#upload-file');
   var formPopupElement = formElement.querySelector('.img-upload__overlay');
-  var formCloseElement = formElement.querySelector('#upload-cancel');
-
+  var formCloseElement = formPopupElement.querySelector('#upload-cancel');
   var hashTagInputElement = formElement.querySelector('.text__hashtags');
   var descriptionInputElement = formElement.querySelector('.text__description');
-
-  var pinElement = formElement.querySelector('.effect-level__pin');
-  var filtersFieldsetElement = formElement.querySelector('.img-upload__effects');
-  var sliderLineElement = formElement.querySelector('.effect-level__line');
-  var imgScaleFieldsetElement = formElement.querySelector('.img-upload__scale');
 
 
   // Проверяет валидность хеш-тега, возвращает текст сообщения об ошибке
@@ -115,28 +109,6 @@ window.form = (function () {
   // Добавляет на кнопку закрытия формы редактирования изображения обработчик нажатия Enter
   formCloseElement.addEventListener('keydown', function (evt) {
     window.util.isEnterEvent(evt, hideForm);
-  });
-
-
-  // Добавляет на филдесет с радиобаттонами фильтров обработчик события переключения кнопок
-  filtersFieldsetElement.addEventListener('change', function (evt) {
-    window.filter.onBtnChange(evt);
-  });
-
-
-  // Добавляет на пин слайдера обработчик события отпускания кнопки мыши
-  pinElement.addEventListener('mouseup', function () {
-    var pinPositionX = pinElement.offsetLeft;
-    var maxCoordX = sliderLineElement.offsetWidth;
-    var percentageValue = Math.floor((pinPositionX / maxCoordX) * 100);
-
-    window.filter.setInputValue(percentageValue);
-    window.filter.add(percentageValue, window.filter.currentFilter);
-  });
-
-  // Добавляет на филдсет с контролами масштабирования фото обработчик события клик
-  imgScaleFieldsetElement.addEventListener('click', function (evt) {
-    window.scale.onBtnClick(evt);
   });
 
   // Сбрасывает значения полей формы на значения по умолчанию
