@@ -4,15 +4,23 @@
 
 window.filter = (function () {
 
-  var Level = {
+  var Intensity = {
+    MIN: 0,
     MAX: 100,
-    DEFAULT: 20
+    DEFAULT: 100
   };
 
   var formElement = document.querySelector('.img-upload__form');
   var previewImgElement = formElement.querySelector('.img-upload__preview').querySelector('img');
-  var effectValueElement = formElement.querySelector('.effect-level__value');
   var sliderElement = formElement.querySelector('.effect-level');
+  var effectValueElement = sliderElement.querySelector('.effect-level__value');
+  var sliderLineElement = sliderElement.querySelector('.effect-level__line');
+  var pinElement = sliderLineElement.querySelector('.effect-level__pin');
+  var depthLineElement = sliderLineElement.querySelector('.effect-level__depth');
+  var filtersFieldsetElement = formElement.querySelector('.img-upload__effects');
+
+  // Значение текущего выбранного фильтра
+  var currentFilter = {};
 
   var effectBtnIdToClassName = {
     'effect-none': 'effects__preview--none',
@@ -91,17 +99,91 @@ window.filter = (function () {
     return foundFilter;
   };
 
+  // Задает размер полосы заливки между левым концом слайдера и пином фильтра
+  var changeEffectDepthBarFill = function () {
+    depthLineElement.style.width = pinElement.style.left;
+  };
+
+  // Сбрасывает положение пина слайдера на положение по умолчанию
+  var resetPin = function () {
+    pinElement.style.left = Intensity.DEFAULT + '%';
+    changeEffectDepthBarFill();
+  };
+
+  // Органичивает область перемещения пина слайдера
+  var limitPinMovement = function () {
+    var sliderLength = sliderLineElement.offsetWidth;
+
+    if (pinElement.offsetLeft < Intensity.MIN) {
+      pinElement.style.left = Intensity.MIN;
+    } else if (pinElement.offsetLeft > sliderLength) {
+      pinElement.style.left = sliderLength + 'px';
+    }
+  };
+
+  // Добавляет на пин слайдера обработчик события перетаскивания, изменяющий насыщенность фильтра
+  pinElement.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
+    var sliderLength = sliderLineElement.offsetWidth;
+    var startCoordX = evt.clientX;
+
+    // Обработчик перемещения мыши
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      var shiftX = startCoordX - moveEvt.clientX;
+      startCoordX = moveEvt.clientX;
+
+      evt.target.style.left = evt.target.offsetLeft - shiftX + 'px';
+      limitPinMovement();
+      changeEffectDepthBarFill();
+
+      // Вычисляет процентное значение насыщенности
+      var percentageValue = Math.floor((evt.target.offsetLeft / sliderLength) * 100);
+
+      // Записывает значение насыщенности фильтра в поле input
+      effectValueElement.value = percentageValue;
+
+      // Применяет настройки фильтра к изображению
+      applyFilterIntensity(percentageValue);
+    };
+
+    // Обработчик отпускания кнопки мыши - удаляет обработчики перемещения и отпускания
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+  // Задаёт изображению значение фильтра с соответствующим уровнем насыщенности
+  var applyFilterIntensity = function (percentageValue) {
+    var intensity = calculateIntensity(percentageValue, currentFilter);
+    currentFilter.currentValue = intensity;
+    previewImgElement.style.filter = createFlterStyle(currentFilter);
+  };
+
+  // Добавляет на филдесет с радиобаттонами фильтров обработчик события переключения кнопок, вызывающий смену фильтра изображения
+  filtersFieldsetElement.addEventListener('change', function (evt) {
+    window.filter.remove();
+
+    if (evt.target.id === 'effect-none') {
+      window.filter.hideSlider();
+    } else {
+      window.filter.showSlider();
+      var filterClass = effectBtnIdToClassName[evt.target.id];
+      previewImgElement.classList.add(filterClass);
+      currentFilter = findFilter(evt.target.id);
+      applyFilterIntensity(Intensity.DEFAULT);
+      window.filter.resetInputValue();
+      resetPin();
+    }
+  });
+
   return {
-
-    // Значение текущего выбранного фильтра
-    currentFilter: {},
-
-    // Задаёт изображению значение фильтра соответствующей насыщенности
-    add: function (percentageValue, filter) {
-      var intensity = calculateIntensity(percentageValue, filter);
-      filter.currentValue = intensity;
-      previewImgElement.style.filter = createFlterStyle(filter);
-    },
 
     // Сбрасывает стили фильтра у большого изображения
     remove: function () {
@@ -111,35 +193,12 @@ window.filter = (function () {
         }
       });
       previewImgElement.style.filter = '';
-      window.filter.currentFilter = {};
-    },
-
-    // Записывает в поле уровня фильтра значение насыщенности фильтра в процентах
-    setInputValue: function (levelValue) {
-      effectValueElement.value = levelValue;
+      currentFilter = {};
     },
 
     // Сбрасывает значение в поле насыщенности фильтра на значение по умолчанию
     resetInputValue: function () {
-      window.filter.setInputValue(Level.DEFAULT);
-    },
-
-    // Обработчик события переключения радиобаттонов фильтров, вызывающий смену фильтра изображения
-    onBtnChange: function (evt) {
-      window.filter.remove();
-
-      if (evt.target.id === 'effect-none') {
-        window.filter.hideSlider();
-      } else {
-        window.filter.showSlider();
-
-        var filterClass = effectBtnIdToClassName[evt.target.id];
-        previewImgElement.classList.add(filterClass);
-
-        // Записывает текущее значение фильтра в переменную currentFilter
-        window.filter.currentFilter = findFilter(evt.target.id);
-        window.filter.setInputValue(Level.MAX);
-      }
+      effectValueElement.value = Intensity.DEFAULT;
     },
 
     // Скрывает слайдер интенсивности фильтра
