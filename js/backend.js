@@ -4,7 +4,7 @@
 
 window.backend = (function () {
 
-  var LOAD_URL = 'https://javascript.pages.academy/kekstagram/data2';
+  var LOAD_URL = 'https://javascript.pages.academy/kekstagram/data';
   var Code = {
     OK: 200,
     BAD_REQUEST: 400,

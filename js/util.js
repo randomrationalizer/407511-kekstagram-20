@@ -26,8 +26,8 @@ window.util = (function () {
 
   // Скрывает сообщение об ошибке при клике по области экрана за пределами блока попапа
   var onErrorMsgOuterClick = function (evt) {
-    var errorInnerElem = document.querySelector('.error__inner');
-    window.util.isOuterAreaClick(evt, errorInnerElem, hideErrorMessage);
+    var errorInnerElement = document.querySelector('.error__inner');
+    window.util.isOuterAreaClick(evt, errorInnerElement, hideErrorMessage);
   };
 
   return {
