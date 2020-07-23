@@ -16,8 +16,8 @@ window.bigPhoto = (function () {
     var element = commentElement.cloneNode(true);
 
     element.querySelector('.social__picture').src = comment.avatar;
-    element.querySelector('.social__picture').alt = comment.name;
     element.querySelector('.social__text').textContent = comment.message;
+    element.querySelector('.social__picture').alt = comment.name;
 
     return element;
   };
@@ -46,7 +46,7 @@ window.bigPhoto = (function () {
       bigPhotoElement.classList.remove('hidden');
 
       var bigPhotoImgElement = bigPhotoElement.querySelector('.big-picture__img').querySelector('img');
-      bigPhotoImgElement.src = photo.src;
+      bigPhotoImgElement.src = photo.url;
       bigPhotoImgElement.alt = photo.description;
       bigPhotoElement.querySelector('.likes-count').textContent = photo.likes;
       bigPhotoElement.querySelector('.comments-count').textContent = photo.comments.length;

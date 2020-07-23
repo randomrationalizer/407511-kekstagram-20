@@ -6,11 +6,31 @@ window.gallery = (function () {
 
   var photosContainerElement = document.querySelector('.pictures');
 
+  // Массив загруженных с сервера фотографий пользователей
+  var userPhotos = [];
+
+
+  // Находит нужный объект в массиве объектов фотографий пользователей по id миниатюры
+  var findPhoto = function (id) {
+    var imgObj = userPhotos.find(function (elem) {
+      return elem.id === id;
+    });
+    return imgObj;
+  };
+
+  // Отрисовывает сгенерированные элементы миниатюр фотографий пользователей на страницу в блок .pictures
+  var renderPhotos = function (photosObjects) {
+    var fragment = document.createDocumentFragment();
+    photosObjects.forEach(function (photoObj) {
+      fragment.appendChild(window.miniature.create(photoObj));
+    });
+    photosContainerElement.appendChild(fragment);
+  };
 
   // Обработчик события клик по миниатюре изображения случайного пользователя
   var onMiniaturePhotoClick = function (img) {
     var clickedPhotoId = parseInt(img.id, 10);
-    var photo = window.data.findPhoto(clickedPhotoId);
+    var photo = findPhoto(clickedPhotoId);
     window.bigPhoto.open(photo);
   };
 
@@ -31,15 +51,14 @@ window.gallery = (function () {
   });
 
   return {
-    // Отрисовывает сгенерированные элементы миниатюр фотографий пользователей на страницу в блок .pictures
-    render: function (photosObjects) {
-      var fragment = document.createDocumentFragment();
 
-      photosObjects.forEach(function (photoObj) {
-        fragment.appendChild(window.miniature.create(photoObj));
+    // Сохраняет загруженный с сервера массив фотографий, отрисовывает миниатюры
+    create: function (loadedData) {
+      userPhotos = loadedData;
+      userPhotos.forEach(function (photo, index) {
+        photo.id = index + 1;
       });
-
-      photosContainerElement.appendChild(fragment);
+      renderPhotos(userPhotos);
     }
   };
 })();

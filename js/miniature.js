@@ -8,12 +8,12 @@ window.miniature = (function () {
 
   return {
 
-    // Создаёт элемент миниатюры фотографии случайного пользователя на основе шаблона #picture и сгенерированного объекта фотографии
+    // Создаёт элемент миниатюры фотографии случайного пользователя на основе шаблона #picture и объекта фотографии
     create: function (photoObj) {
       var element = photoTemplate.cloneNode(true);
 
       element.querySelector('.picture__img').setAttribute('id', photoObj.id + '-user-photo');
-      element.querySelector('.picture__img').src = photoObj.src;
+      element.querySelector('.picture__img').src = photoObj.url;
       element.querySelector('.picture__likes').textContent = photoObj.likes;
       element.querySelector('.picture__comments').textContent = photoObj.comments.length;
 
