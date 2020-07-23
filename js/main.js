@@ -10,6 +10,6 @@ window.main = (function () {
     window.form.show();
   });
 
-  // Отрисовка фотографий случайных пользователей
-  window.gallery.render(window.data.randomPhotos);
+  // Отрисовка загруженных с сервера фотографий пользователей
+  window.backend.load(window.gallery.create, window.util.showErrorMessage);
 })();

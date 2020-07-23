@@ -16,8 +16,8 @@ window.bigPhoto = (function () {
     var element = commentElement.cloneNode(true);
 
     element.querySelector('.social__picture').src = comment.avatar;
-    element.querySelector('.social__picture').alt = comment.name;
     element.querySelector('.social__text').textContent = comment.message;
+    element.querySelector('.social__picture').alt = comment.name;
 
     return element;
   };
@@ -31,7 +31,14 @@ window.bigPhoto = (function () {
   var closeBigPhoto = function () {
     bigPhotoElement.classList.add('hidden');
     document.removeEventListener('keydown', onBigPhotoEscPress);
+    bigPhotoElement.removeEventListener('click', onBigPhotoOuterClick);
     window.util.showBodyScrollbar();
+  };
+
+  // Закрывает окно полноэкранного просмотра фото при клике по области экрана за пределами окна
+  var onBigPhotoOuterClick = function (evt) {
+    var popupElement = bigPhotoElement.querySelector('.big-picture__preview');
+    window.util.isOuterAreaClick(evt, popupElement, closeBigPhoto);
   };
 
   // Добавляет на кнопку закрытия окна полноэкранного просмотра фото обработчик события клик, закрывающий окно
@@ -46,7 +53,7 @@ window.bigPhoto = (function () {
       bigPhotoElement.classList.remove('hidden');
 
       var bigPhotoImgElement = bigPhotoElement.querySelector('.big-picture__img').querySelector('img');
-      bigPhotoImgElement.src = photo.src;
+      bigPhotoImgElement.src = photo.url;
       bigPhotoImgElement.alt = photo.description;
       bigPhotoElement.querySelector('.likes-count').textContent = photo.likes;
       bigPhotoElement.querySelector('.comments-count').textContent = photo.comments.length;
@@ -63,6 +70,7 @@ window.bigPhoto = (function () {
       commentsLoaderElement.classList.add('hidden');
       window.util.hideBodyScrollbar();
       document.addEventListener('keydown', onBigPhotoEscPress);
+      bigPhotoElement.addEventListener('click', onBigPhotoOuterClick);
     }
   };
 })();
