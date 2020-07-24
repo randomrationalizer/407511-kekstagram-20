@@ -19,7 +19,7 @@ window.util = (function () {
     document.removeEventListener('click', onErrorMsgOuterClick);
   };
 
-  // Скрывет сообщение об ошибке по нажатию ESC
+  // Скрывает сообщение об ошибке по нажатию ESC
   var onErrorMsgEscPress = function (evt) {
     window.util.isEscEvent(evt, hideErrorMessage);
   };
@@ -32,13 +32,12 @@ window.util = (function () {
 
   return {
     // Отображает сообщение об ошибке
-    showErrorMessage: function (message) {
+    showErrorMessage: function (message, isSubmitMsg) {
       var element = errorTemplate.cloneNode(true);
 
       element.querySelector('.error__title').textContent = message;
-
       var closeBtn = element.querySelector('.error__button');
-      closeBtn.textContent = 'Закрыть';
+      closeBtn.textContent = isSubmitMsg ? 'Загрузить другой файл' : 'Закрыть';
       closeBtn.addEventListener('click', function () {
         hideErrorMessage();
       });
