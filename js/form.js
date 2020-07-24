@@ -17,6 +17,7 @@ window.form = (function () {
   var formCloseElement = formPopupElement.querySelector('#upload-cancel');
   var hashTagInputElement = formElement.querySelector('.text__hashtags');
   var descriptionInputElement = formElement.querySelector('.text__description');
+  var successTemplate = document.querySelector('#success').content.querySelector('.success');
 
 
   // Проверяет валидность хеш-тега, возвращает текст сообщения об ошибке
@@ -94,6 +95,40 @@ window.form = (function () {
     imgUploadElement.value = '';
   };
 
+  // Отображает сообщение об успешной отправке формы
+  var showSuccessMessage = function () {
+    var element = successTemplate.cloneNode(true);
+    var closeBtn = element.querySelector('.success__button');
+    closeBtn.addEventListener('click', function () {
+      hideSuccessMessage();
+    });
+    closeBtn.addEventListener('keydown', function (evt) {
+      window.util.isEnterEvent(evt, hideSuccessMessage);
+    });
+    document.querySelector('main').appendChild(element);
+    document.addEventListener('keydown', onSuccessMsgEscPress);
+    document.addEventListener('click', onSuccessMsgOuterClick);
+  };
+
+  // Скрывает сообщение об успешной отправке формы по нажатию ESC
+  var onSuccessMsgEscPress = function (evt) {
+    window.util.isEscEvent(evt, hideSuccessMessage);
+  };
+
+  // Скрывает сообщение об успешной отправке формы при клике по области экрана за пределами блока попапа
+  var onSuccessMsgOuterClick = function (evt) {
+    var successInnerElement = document.querySelector('.success__inner');
+    window.util.isOuterAreaClick(evt, successInnerElement, hideSuccessMessage);
+  };
+
+  // Скрывает сообщение об успешной отправке формы
+  var hideSuccessMessage = function () {
+    var successMsgElem = document.querySelector('.success');
+    successMsgElem.parentNode.removeChild(successMsgElem);
+    document.removeEventListener('keydown', onSuccessMsgEscPress);
+    document.removeEventListener('click', onSuccessMsgOuterClick);
+  };
+
   // Обработчик закрытия формы по нажатию Esc
   var onFormEscPress = function (evt) {
     if (!evt.target.matches('input[name="hashtags"]') && !evt.target.matches('textarea[name="description"]')) {
@@ -129,6 +164,25 @@ window.form = (function () {
     window.util.showBodyScrollbar();
     document.removeEventListener('keydown', onFormEscPress);
   };
+
+  // Обработчик успешной отправки формы, показыващий сообщение об успехе и скрывающий форму
+  var onFormSubmit = function () {
+    showSuccessMessage();
+    hideForm();
+  };
+
+  // Обработчик ошибки отправки формы, показыващий сообщение об ошибке и скрывающий форму
+  var onFormSubmitError = function (message) {
+    window.util.showErrorMessage(message, true);
+    hideForm();
+  };
+
+  // Добавляет на форму загрузки изображения обработчик события отправки данных формы на сервер
+  formElement.addEventListener('submit', function (evt) {
+    window.backend.upload(new FormData(formElement), onFormSubmit, onFormSubmitError);
+    evt.preventDefault();
+  });
+
 
   return {
     // Показывает форму редактирования изображения
