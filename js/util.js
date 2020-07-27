@@ -3,13 +3,16 @@
 'use strict';
 
 window.util = (function () {
-  var bodyElement = document.querySelector('body');
-  var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+  var DEBOUNCE_INTERVAL = 500;
 
   var Code = {
     ESC: 27,
     ENTER: 13
   };
+
+  var bodyElement = document.querySelector('body');
+  var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+
 
   // Скрывает сообщение об ошибке
   var hideErrorMessage = function () {
@@ -83,6 +86,21 @@ window.util = (function () {
     // Показывает скроллбар страницы фотографий при закрытии модального окна
     showBodyScrollbar: function () {
       bodyElement.classList.remove('modal-open');
+    },
+
+    // Устранение эффекта 'дебезга' при слишком частых вызовах функции
+    debounce: function (action) {
+      var lastTimeout = null;
+
+      return function () {
+        var parameters = arguments;
+        if (lastTimeout) {
+          window.clearTimeout(lastTimeout);
+        }
+        lastTimeout = window.setTimeout(function() {
+          action.apply(null, parameters);
+        }, DEBOUNCE_INTERVAL);
+      };
     }
   };
 })();

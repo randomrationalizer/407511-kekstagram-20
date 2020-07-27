@@ -6,25 +6,12 @@ window.gallery = (function () {
 
   var photosContainerElement = document.querySelector('.pictures');
 
-  // Массив загруженных с сервера фотографий пользователей
-  var userPhotos = [];
-
-
   // Находит нужный объект в массиве объектов фотографий пользователей по id миниатюры
   var findPhoto = function (id) {
-    var imgObj = userPhotos.find(function (elem) {
+    var imgObj = window.gallery.userPhotos.find(function (elem) {
       return elem.id === id;
     });
     return imgObj;
-  };
-
-  // Отрисовывает сгенерированные элементы миниатюр фотографий пользователей на страницу в блок .pictures
-  var renderPhotos = function (photosObjects) {
-    var fragment = document.createDocumentFragment();
-    photosObjects.forEach(function (photoObj) {
-      fragment.appendChild(window.miniature.create(photoObj));
-    });
-    photosContainerElement.appendChild(fragment);
   };
 
   // Обработчик события клик по миниатюре изображения случайного пользователя
@@ -52,13 +39,33 @@ window.gallery = (function () {
 
   return {
 
-    // Сохраняет загруженный с сервера массив фотографий, отрисовывает миниатюры
+    // Массив загруженных с сервера фотографий пользователей
+    userPhotos: [],
+
+    // Сохраняет загруженный с сервера массив фотографий в переменную userPhotos, отрисовывает миниатюры
     create: function (loadedData) {
-      userPhotos = loadedData;
-      userPhotos.forEach(function (photo, index) {
+      window.gallery.userPhotos = loadedData.map(function (photo, index) {
         photo.id = index + 1;
+        return photo;
       });
-      renderPhotos(userPhotos);
+      window.gallery.renderPhotos(window.gallery.userPhotos);
+      window.sort.show();
+    },
+
+    // Отрисовывает сгенерированные элементы миниатюр фотографий пользователей на страницу в блок .pictures
+    renderPhotos: function (photosObjects) {
+      var fragment = document.createDocumentFragment();
+      photosObjects.forEach(function (photoObj) {
+        fragment.appendChild(window.miniature.create(photoObj));
+      });
+      photosContainerElement.appendChild(fragment);
+    },
+
+    clear: function () {
+      var miniatureElements = Array.from(photosContainerElement.querySelectorAll('.picture'));
+      miniatureElements.forEach(function (elem) {
+        elem.parentNode.removeChild(elem);
+      });
     }
   };
 })();

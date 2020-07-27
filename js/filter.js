@@ -85,7 +85,7 @@ window.filter = (function () {
   };
 
   // Возвращает CSS стиль для фильтра
-  var createFlterStyle = function (filter) {
+  var createFilterStyle = function (filter) {
     var style = filter.name + '(' + filter.currentValue + filter.units + ')';
     return style;
   };
@@ -163,7 +163,7 @@ window.filter = (function () {
   var applyFilterIntensity = function (percentageValue) {
     var intensity = calculateIntensity(percentageValue, currentFilter);
     currentFilter.currentValue = intensity;
-    previewImgElement.style.filter = createFlterStyle(currentFilter);
+    previewImgElement.style.filter = createFilterStyle(currentFilter);
   };
 
   // Добавляет на филдесет с радиобаттонами фильтров обработчик события переключения кнопок, вызывающий смену фильтра изображения
