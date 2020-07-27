@@ -45,7 +45,7 @@ window.sort = (function () {
   };
 
   // Обработчик клика по кнопке сортировки, отрисовывающий фотографии пользователей в порядке, предусмотренном сортировкой
-  var onSortBtnClick = function (evt) {
+  var onSortBtnClick = window.util.debounce(function (evt) {
     var btn = evt.target;
     if (!btn.classList.contains('img-filters__button--active') && btn.classList.contains('img-filters__button')) {
       var checkedBtnElement = sortingFormElement.querySelector('.img-filters__button--active');
@@ -54,7 +54,7 @@ window.sort = (function () {
 
       updatePhotos(btn.id);
     }
-  };
+  });
 
   // Обновляет галлерею фотографий в зависимости от id нажатой кнопки сортировки
   var updatePhotos = function (buttonId) {

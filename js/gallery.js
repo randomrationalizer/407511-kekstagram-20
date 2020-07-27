@@ -62,7 +62,7 @@ window.gallery = (function () {
     },
 
     clear: function () {
-      var miniatureElements = [].slice.call(photosContainerElement.querySelectorAll('.picture'));
+      var miniatureElements = Array.from(photosContainerElement.querySelectorAll('.picture'));
       miniatureElements.forEach(function (elem) {
         elem.parentNode.removeChild(elem);
       });
