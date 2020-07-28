@@ -97,7 +97,7 @@ window.util = (function () {
         if (lastTimeout) {
           window.clearTimeout(lastTimeout);
         }
-        lastTimeout = window.setTimeout(function() {
+        lastTimeout = window.setTimeout(function () {
           action.apply(null, parameters);
         }, DEBOUNCE_INTERVAL);
       };
