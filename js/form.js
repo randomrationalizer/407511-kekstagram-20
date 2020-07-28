@@ -11,6 +11,8 @@ window.form = (function () {
   var HASHTAG_MAX_LENGTH = 20;
   var HASHTAG_MAX_COUNT = 5;
 
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
   var formElement = document.querySelector('.img-upload__form');
   var imgUploadElement = formElement.querySelector('#upload-file');
   var formPopupElement = formElement.querySelector('.img-upload__overlay');
@@ -18,6 +20,7 @@ window.form = (function () {
   var hashTagInputElement = formElement.querySelector('.text__hashtags');
   var descriptionInputElement = formElement.querySelector('.text__description');
   var successTemplate = document.querySelector('#success').content.querySelector('.success');
+  var previewImgElement = formElement.querySelector('.img-upload__preview').querySelector('img');
 
 
   // Проверяет валидность хеш-тега, возвращает текст сообщения об ошибке
@@ -90,9 +93,10 @@ window.form = (function () {
     descriptionInputElement.value = '';
   };
 
-  // Сбрасывает значение поля загрузки файла
+  // Сбрасывает значение поля загрузки файла и адрес у превью
   var resetImgUploadInput = function () {
     imgUploadElement.value = '';
+    previewImgElement.src = '';
   };
 
   // Отображает сообщение об успешной отправке формы
@@ -155,6 +159,14 @@ window.form = (function () {
     resetDescriptionInput();
   };
 
+  // Показывает форму редактирования изображения
+  var showForm = function () {
+    formPopupElement.classList.remove('hidden');
+    window.util.hideBodyScrollbar();
+    window.filter.hideSlider();
+    document.addEventListener('keydown', onFormEscPress);
+  };
+
   // Скрывает форму редактирования изображения
   var hideForm = function () {
     formPopupElement.classList.add('hidden');
@@ -185,12 +197,26 @@ window.form = (function () {
 
 
   return {
-    // Показывает форму редактирования изображения
-    show: function () {
-      formPopupElement.classList.remove('hidden');
-      window.util.hideBodyScrollbar();
-      window.filter.hideSlider();
-      document.addEventListener('keydown', onFormEscPress);
+
+    // Обработчик загрузки фотографии пользователем в поле input, показывающий окно редактировния изображения
+    onFileInputChange: function () {
+      var file = imgUploadElement.files[0];
+      var fileName = file.name.toLowerCase();
+
+      var isTypeMatches = FILE_TYPES.some(function (fileType) {
+        return fileName.endsWith(fileType);
+      });
+
+      if (isTypeMatches) {
+        var reader = new FileReader();
+
+        reader.addEventListener('load', function () {
+          showForm();
+          previewImgElement.src = reader.result;
+        });
+
+        reader.readAsDataURL(file);
+      }
     }
   };
 })();

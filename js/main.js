@@ -7,7 +7,7 @@ window.main = (function () {
 
   // Добавляет на поле загрузки изображения обработчик события выбора файла, открывающий окно редактирования изображения
   imgUploadElement.addEventListener('change', function () {
-    window.form.show();
+    window.form.onFileInputChange();
   });
 
   // Отрисовка загруженных с сервера фотографий пользователей
